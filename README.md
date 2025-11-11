@@ -64,7 +64,7 @@ A Packer template for creating macOS Tahoe (macOS 15) virtual machines using [Ta
 
 2. **Download macOS Tahoe IPSW**
 
-   Use [Mist](https://github.com/ninxsoft/Mist/releases) to download the IPSW file. Mist is a Mac utility that automatically downloads macOS firmware and installers directly from Apple. Good tool to have installed as a macadmin.
+   Use [Mist](https://github.com/ninxsoft/Mist/releases) to download the IPSW file. Mist is a Mac utility that automatically downloads macOS firmware and installers directly from Apple. Good tool to have installed as a macadmin. Anther option is to download the IPSW that you need from [Mr. Macintosh's IPSW list](https://mrmacintosh.com/apple-silicon-m1-full-macos-restore-ipsw-firmware-files-database/).
 
 3. **Customize Variables**
 
