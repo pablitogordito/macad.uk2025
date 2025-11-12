@@ -103,79 +103,99 @@ source "tart-cli" "tart" {
   vm_name      = var.vm_name
   cpu_count    = 4
   memory_gb    = 8
-  disk_size_gb = 100
+  disk_size_gb = 50
   ssh_username = "${var.account_userName}"
   ssh_password = "${var.account_password}"
-  ssh_timeout  = "300s"
-
-  # Automates macOS Setup Assistant
+  ssh_timeout  = "180s"
   boot_command = [
+    # hello, hola, bonjour, etc.
     "<wait60s><spacebar>",
-    # Language selection: workaround by switching to Italiano first, then English
-    "<wait30s>italiano<esc>english<wait2s><enter>",
-    # Select Country/Region
-    "<wait30s>united states<leftShiftOn><tab><leftShiftOff><wait4s><spacebar>",
-    # Transfer Your Data → Skip
-    "<wait10s><tab><tab><tab><spacebar><tab><tab><wait4s><spacebar>",
-    # Written and Spoken Languages → Continue
-    "<wait10s><leftShiftOn><tab><leftShiftOff><wait4s><spacebar>",
-    # Accessibility → Continue
-    "<wait10s><leftShiftOn><tab><leftShiftOff><wait4s><spacebar>",
-    # Data & Privacy → Continue
-    "<wait10s><leftShiftOn><tab><leftShiftOff><wait4s><spacebar>",
+    # Language: most of the times we have a list of "English"[1], "English (UK)", etc. with
+    # "English" language already selected. If we type "english", it'll cause us to switch
+    # to the "English (UK)", which is not what we want. To solve this, we switch to some other
+    # language first, e.g. "Italiano" and then switch back to "English". We'll then jump to the
+    # first entry in a list of "english"-prefixed items, which will be "English".
+    #
+    # [1]: should be named "English (US)", but oh well 🤷
+    "<wait30s>italiano<esc>english<enter>",
+    # Select Your Country or Region
+    "<wait60s>united states<leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Transfer Your Data to This Mac
+    "<wait10s><tab><tab><tab><spacebar><tab><tab><spacebar>",
+    # Written and Spoken Languages
+    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Accessibility
+    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Data & Privacy
+    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Create a Mac Account
-    "<wait10s>${var.account_userName}<tab>${var.account_userName}<tab>${var.account_password}<tab>${var.account_password}<tab><tab><spacebar><tab><tab><spacebar>",
-    # Enable Voice Over (then disable later)
+    "<wait10s><tab><tab><tab><tab><tab><tab>${var.account_userName}<tab>${var.account_userName}<tab>${var.account_password}<tab>${var.account_password}<tab><tab><spacebar><tab><tab><spacebar>",
+    # Enable Voice Over
     "<wait120s><leftAltOn><f5><leftAltOff>",
-    # Skip Apple ID sign-in
+    # Sign In with Your Apple ID
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Are you sure you want to skip signing in with an Apple ID?
     "<wait10s><tab><spacebar>",
-    # Terms and Conditions → Agree
+    # Terms and Conditions
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # I have read and agree to the macOS Software License Agreement
     "<wait10s><tab><spacebar>",
-    # Location Services → Skip
+    # Enable Location Services
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Are you sure you don't want to use Location Services?
     "<wait10s><tab><spacebar>",
-    # Time Zone → Set UTC
-    "<wait10s><tab><tab>UTC<enter><leftShiftOn><tab><tab><leftShiftOff><spacebar>",
-    # Analytics → Skip
+    # Select Your Time Zone
+    "<wait10s><tab><tab><tab>UTC<enter><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Analytics
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
-    # Screen Time → Skip
-    "<wait10s><tab><spacebar>",
-    # Siri → Skip
+    # Screen Time
+    "<wait10s><tab><tab><spacebar>",
+    # Siri
     "<wait10s><tab><spacebar><leftShiftOn><tab><leftShiftOff><spacebar>",
-    # Choose Look → Default
-    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
-    # Auto Update → Enable
+    # You Mac is Ready for FileVault
+    "<wait10s><leftShiftOn><tab><tab><leftShiftOff><spacebar>",
+    # Mac Data Will Not Be Securely Encrypted
     "<wait10s><tab><spacebar>",
-    # Welcome Screen → Enter Desktop
-    "<wait10s><spacebar>",
+    # Choose Your Look
+    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    # Update Mac Automatically
+    "<wait10s><tab><tab><spacebar>",
+    # Welcome to Mac
+    "<wait30s><spacebar>",
     # Disable Voice Over
-    "<leftAltOn><f5><leftAltOff>",
-    # Enable keyboard navigation (for later system tweaks)
-    "<wait10s><leftAltOn><spacebar><leftAltOff>Terminal<enter>",
-    "<wait10s>defaults write NSGlobalDomain AppleKeyboardUIMode -int 3<enter>",
-    "<wait10s><leftAltOn>q<leftAltOff>",
-    # Open System Settings → Sharing
-    "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
+    "<wait10s><leftAltOn><f5><leftAltOff>",
+    # Enable Keyboard navigation
+    # This is so that we can navigate the System Settings app using the keyboard
+    "<wait10s><leftAltOn><spacebar><leftAltOff>Terminal<wait10s><enter>",
+    "<wait10s><wait10s>defaults write NSGlobalDomain AppleKeyboardUIMode -int 3<enter>",
+    # Now that the installation is done, open "System Settings"
+    # On Tahoe opening System Settings through Spotlight is not very reliable, sometimes opens System information
+    "<wait10s>open '/System/Applications/System Settings.app'<enter>",
+    # Navigate to "Sharing"
     "<wait10s><leftCtrlOn><f2><leftCtrlOff><right><right><right><down>Sharing<enter>",
-    # Enable Screen Sharing
-    "<wait10s><tab><tab><tab><tab><tab><tab><tab><spacebar>",
-    # Enable Remote Login
-    "<wait30s><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><spacebar>",
+    # Navigate to "Screen Sharing" and enable it
+    "<wait10s><tab><tab><tab><tab><tab><spacebar>",
+    # Navigate to "Remote Login" and enable it
+    "<wait10s><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><spacebar>",
+    # Quit System Settings
     "<wait10s><leftAltOn>q<leftAltOff>",
-    # Disable Gatekeeper via Terminal
-    "<wait10s><leftAltOn><spacebar><leftAltOff>Terminal<enter>",
+    # Disable Gatekeeper (1/2)
     "<wait10s>sudo spctl --global-disable<enter>",
     "<wait10s>${var.account_password}<enter>",
-    "<wait10s><leftAltOn>q<leftAltOff>",
-    # Disable Gatekeeper via System Settings
-    "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
+    # Disable Gatekeeper (2/2)
+    # On Tahoe opening System Settings through Spotlight is not very reliable, sometimes opens System information
+    "<wait10s>open '/System/Applications/System Settings.app'<enter>",
     "<wait10s><leftCtrlOn><f2><leftCtrlOff><right><right><right><down>Privacy & Security<enter>",
+    "<wait10s><leftShiftOn><tab><tab><tab><tab><tab><leftShiftOff>",
     "<wait10s><down><wait1s><down><wait1s><enter>",
     "<wait10s>${var.account_password}<enter>",
     "<wait10s><leftShiftOn><tab><leftShiftOff><wait1s><spacebar>",
+    # Quit System Settings
     "<wait10s><leftAltOn>q<leftAltOff>",
+  ]
+
+  run_extra_args = [
+    "--no-audio"
   ]
 
   create_grace_time  = "30s"

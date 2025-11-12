@@ -1,10 +1,8 @@
 # Silicon Sandbox: Mastering Mac virtualisation for Jamf workflows - macad.uk2025
 
-### [Read Blog Post](https://www.motionbug.com/the-cookbook-baking-up-your-perfect-jamf-pro-test-vm/)
+### [Read Blog Post that goes into more detail](https://www.motionbug.com/the-cookbook-baking-up-your-perfect-jamf-pro-test-vm/)
 
 ---
-
-![keynoteslide](img/slide.jpg)
 
 Resources from my talk at macad.uk named **"Silicon Sandbox: Mastering Mac virtualisation for Jamf workflows"**.
 
@@ -12,13 +10,23 @@ Resources from my talk at macad.uk named **"Silicon Sandbox: Mastering Mac virtu
 
 ## Overview
 
-This repository contains Packer templates and resources for automating macOS virtualization for macadmins with Jamf Pro / School.
+This repository contains Packer templates and resources for automating macOS virtualization for macadmins with Jamf Pro.
+
+## Requirements
+
+- macOS host with Apple Silicon
+- [brew](https://brew.sh/)
+- [Packer](https://www.packer.io/) 1.8.0 or later
+- [Tart](https://github.com/cirruslabs/tart) 1.15.3 or later
+- macOS Tahoe (macOS 26) IPSW file
+  - [Optional - Mist](https://github.com/ninxsoft/Mist/releases)
+- Jamf Pro (for MDM enrollment)
 
 ## Packer Templates
 
 ### apple-tart-tahoe.pkr.hcl
 
-A Packer template for creating macOS Tahoe (macOS 15) virtual machines using [Tart](https://github.com/cirruslabs/tart) on Apple Silicon.
+A Packer template for creating macOS Tahoe (macOS 26) virtual machines using [Tart](https://github.com/cirruslabs/tart) on Apple Silicon.
 
 #### Features
 
@@ -56,36 +64,67 @@ A Packer template for creating macOS Tahoe (macOS 15) virtual machines using [Ta
 
 #### Usage
 
+**Important:** Do not edit the `apple-tart-tahoe.pkr.hcl` template file directly. Instead, create a separate variables file (`.pkrvars.hcl`) to customize your configuration.
+
 1. **Install Tart**
 
    ```bash
    brew install cirruslabs/cli/tart
    ```
 
+   **Note:** If you don't have Homebrew installed, visit [brew.sh](https://brew.sh/) to learn how to install it.
+
 2. **Download macOS Tahoe IPSW**
 
    Use [Mist](https://github.com/ninxsoft/Mist/releases) to download the IPSW file. Mist is a Mac utility that automatically downloads macOS firmware and installers directly from Apple. Good tool to have installed as a macadmin. Anther option is to download the IPSW that you need from [Mr. Macintosh's IPSW list](https://mrmacintosh.com/apple-silicon-m1-full-macos-restore-ipsw-firmware-files-database/).
 
-3. **Customize Variables**
+3. **Create a Variables File**
 
-   Create a variables file or use command-line flags:
+   Create a file named `my-config.pkrvars.hcl` in the `packer-templates` directory with your custom values:
 
-   ```bash
-   packer build \
-     -var 'vm_name=jamf-test-vm' \
-     -var 'ipsw_url=/path/to/tahoe.ipsw' \
-     -var 'jamf_url=https://yourinstance.jamfcloud.com' \
-     -var 'mdm_invitation_id=your-invitation-id' \
-     -var 'enrollment_type=profile' \
-     apple-tart-tahoe.pkr.hcl
+   ```hcl
+   # -------------------------
+   # Packer Variables File
+   # -------------------------
+   # This file contains variable values for the apple-tart-tahoe.pkr.hcl template
+   # Usage: packer build -var-file="my-config.pkrvars.hcl" apple-tart-tahoe.pkr.hcl
+
+   # VM Configuration
+   vm_name  = "jamf-test-vm"
+   ipsw_url = "/path/to/your/macos-tahoe.ipsw"
+
+   # Account Configuration
+   account_userName = "admin"
+   account_password = "admin"
+
+   # MDM Enrollment Configuration
+   enrollment_type    = "profile"  # Options: "profile" or "link"
+   jamf_url           = "https://yourinstance.jamfcloud.com"
+   mdm_invitation_id  = "your-invitation-id-here"
+
+   # Feature Toggles
+   enable_passwordless_sudo   = "true"
+   enable_auto_login          = "true"
+   enable_safari_automation   = "true"
+   enable_screenlock_disable  = "true"
+   enable_spotlight_disable   = "true"
+   enable_clipboard_sharing   = "false"
    ```
+
+   **Note:** Variables files (`.pkrvars.hcl`) are gitignored by default to protect sensitive information like passwords and invitation IDs.
 
 4. **Build the VM**
 
+   Navigate to the packer-templates directory and run the build:
+
    ```bash
    cd packer-templates
+   
+   # Validate the template
    packer validate apple-tart-tahoe.pkr.hcl
-   packer build apple-tart-tahoe.pkr.hcl
+   
+   # Build with your variables file
+   packer build -var-file="my-config.pkrvars.hcl" apple-tart-tahoe.pkr.hcl
    ```
 
 #### Enrollment Options
@@ -100,10 +139,8 @@ A Packer template for creating macOS Tahoe (macOS 15) virtual machines using [Ta
 - Creates `Enroll_Your_Mac.webloc` on the desktop
 - User double-clicks to open enrollment URL in browser then finishes the enrollment process
 
-## Requirements
+#### Additional Notes
 
-- macOS host with Apple Silicon
-- [Packer](https://www.packer.io/) 1.8.0 or later
-- [Tart](https://github.com/cirruslabs/tart) 1.15.3 or later
-- [Mist - macOS Tahoe (macOS 26) IPSW file](https://github.com/ninxsoft/Mist/releases)
-- Jamf Pro (for MDM enrollment)
+##### NOTE: 🔊 Audio Disabled During Build
+
+The template includes `run_extra_args = ["--no-audio"]` to disable audio output during VM creation. This prevents any unexpected sounds from the macOS Setup Assistant while the automated build is running.
