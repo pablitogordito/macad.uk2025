@@ -12,6 +12,8 @@ Resources from my talk at macad.uk named **"Silicon Sandbox: Mastering Mac virtu
 
 This repository contains Packer templates and resources for automating macOS virtualization for macadmins with Jamf Pro.
 
+Special thanks to [**Karthikeyan**](https://www.linkedin.com/posts/bewithkarthi_macadmins-jamf-intune-activity-7393857251507200000-kRvU?utm_source=share&utm_medium=member_desktop&rcm=ACoAAAHqUzABn4m3Oef7FKu_mE0FTADpXOAqjCk) for his LinkedIn post about using this Packer template. His feedback inspired improvements to [**this template**](https://github.com/karthikeyan-mac), including the use of variables and conditional statements that make it more flexible and easier to customize.
+
 ## Requirements
 
 - macOS host with Apple Silicon
