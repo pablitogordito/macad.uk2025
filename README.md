@@ -20,7 +20,7 @@ Special thanks to [**Karthikeyan**](https://www.linkedin.com/posts/bewithkarthi_
 - [brew](https://brew.sh/)
 - [Packer](https://www.packer.io/) 1.8.0 or later
 - [Tart](https://github.com/cirruslabs/tart) 1.15.3 or later
-- macOS Tahoe (macOS 26) IPSW file
+- macOS Tahoe (macOS 26) IPSW file 
   - [Optional - Mist](https://github.com/ninxsoft/Mist/releases)
 - Jamf Pro (for MDM enrollment)
 
