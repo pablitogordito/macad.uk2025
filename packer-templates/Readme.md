@@ -36,4 +36,4 @@ Run the build with your vars file:￼
 
 `packer build -var-file="my-config.pkrvars.hcl" apple-tart-tahoe.pkr.hcl`
 
-Note: .pkrvars.hcl files are typically gitignored to protect credentials and invitation IDs.
+Note: `.pkrvars.hcl` files are typically gitignored to protect credentials and invitation IDs.
